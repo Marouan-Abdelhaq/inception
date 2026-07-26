@@ -58,9 +58,9 @@ secrets:
 
   mysql_root_password:
     file: ./secrets/mysql_root_password.txt
-  
+
   wp_user_password:
     file: ./secrets/wp_user_password.txt
 
-  wp_admin__password:
-    file: ./secrets/wp_admin__password.txt
+  wp_admin_password:
+    file: ./secrets/wp_admin_password.txt
