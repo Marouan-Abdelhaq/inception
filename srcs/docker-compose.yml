@@ -1,0 +1,66 @@
+services:
+
+  nginx:
+    build: ./requirements/nginx
+    container_name: nginx
+    networks:
+      - inception
+
+  wordpress:
+    build: ./requirements/wordpress
+    container_name: wordpress
+    env_file:
+      - .env
+    secrets:
+      - wp_user_password
+      - wp_admin__password
+    networks:
+      - inception
+    volumes:
+      - wordpress_data:/var/www/html
+
+  mariadb:
+    build: ./requirements/mariadb
+    container_name: mariadb
+    env_file:
+      - .env
+    secrets:
+      - mysql_password
+      - mysql_root_password
+    networks:
+      - inception
+    volumes:
+      - mariadb_data:/var/lib/mysql
+
+volumes:
+
+  wordpress_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/marouan/data/wordpress
+
+  mariadb_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/marouan/data/mariadb
+
+networks:
+  inception:
+    driver: bridge
+
+secrets:
+  mysql_password:
+    file: ./secrets/mysql_password.txt
+
+  mysql_root_password:
+    file: ./secrets/mysql_root_password.txt
+  
+  wp_user_password:
+    file: ./secrets/wp_user_password.txt
+
+  wp_admin__password:
+    file: ./secrets/wp_admin__password.txt
