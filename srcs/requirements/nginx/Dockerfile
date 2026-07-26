@@ -1,5 +1,11 @@
 FROM debian:bookworm
 
-RUN apt update && apt install -y nginx
+RUN apt update && apt install -y nginx openssl && rm -rf /var/lib/apt/lists/*
 
-CMD ["nginx", "-g", "daemon off;"]
+COPY conf/nginx.conf /etc/nginx/nginx.conf
+
+COPY tools/setup.sh /setup.sh
+
+RUN chmod +x /setup.sh
+
+CMD ["/setup.sh"]

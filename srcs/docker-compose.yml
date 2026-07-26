@@ -1,10 +1,11 @@
 services:
-
   nginx:
     build: ./requirements/nginx
     container_name: nginx
     networks:
       - inception
+    volumes:
+      - wordpress_data:/var/www/html
 
   wordpress:
     build: ./requirements/wordpress
@@ -34,7 +35,6 @@ services:
       - mariadb_data:/var/lib/mysql
 
 volumes:
-
   wordpress_data:
     driver: local
     driver_opts:
