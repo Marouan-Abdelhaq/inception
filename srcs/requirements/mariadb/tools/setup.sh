@@ -8,7 +8,7 @@ chown -R mysql:mysql /var/lib/mysql
 MYSQL_ROOT_PASSWORD=$(cat /run/secrets/mysql_root_password)
 MYSQL_PASSWORD=$(cat /run/secrets/mysql_password)
 
-if [ ! -d "/var/lib/mysql/${MYSQL_DATABASE}" ]; then
+if [ ! -d "/var/lib/mysql/mysql" ]; then
 
 	echo "First start"
 

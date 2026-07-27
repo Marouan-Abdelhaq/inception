@@ -2,6 +2,11 @@ services:
   nginx:
     build: ./requirements/nginx
     container_name: nginx
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "443:443"
     networks:
       - inception
     volumes:
@@ -10,6 +15,7 @@ services:
   wordpress:
     build: ./requirements/wordpress
     container_name: wordpress
+    restart: always
     env_file:
       - .env
     secrets:
@@ -24,6 +30,7 @@ services:
   mariadb:
     build: ./requirements/mariadb
     container_name: mariadb
+    restart: always
     env_file:
       - .env
     secrets:
