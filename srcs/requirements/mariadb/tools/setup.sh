@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 mkdir -p /run/mysqld
 
@@ -10,33 +11,28 @@ MYSQL_PASSWORD=$(cat /run/secrets/mysql_password)
 
 if [ ! -d "/var/lib/mysql/mysql" ]; then
 
-	echo "First start"
+	echo "First start: initializing MariaDB data directory"
 
 	mariadb-install-db --user=mysql --datadir=/var/lib/mysql > /dev/null
 
-	mariadbd --user=mysql --skip-networking &
+	echo "Bootstrapping database, user and privileges"
 
-	until mariadb-admin ping >/dev/null 2>&1
-	do
-		sleep 1
-	done
+	# Bootstrap mode runs mariadbd synchronously in the foreground, reading
+	# SQL from stdin and exiting automatically at EOF. It never opens a
+	# network socket, so no background process (`&`) is needed here.
+	mariadbd --user=mysql --bootstrap --datadir=/var/lib/mysql <<-EOSQL
+		CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\`;
+		CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
+		GRANT ALL PRIVILEGES ON \`${MYSQL_DATABASE}\`.* TO '${MYSQL_USER}'@'%';
+		ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
+		FLUSH PRIVILEGES;
+	EOSQL
 
-	mariadb -u root << EOF
-CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\`;
-
-CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
-
-GRANT ALL PRIVILEGES ON \`${MYSQL_DATABASE}\`.* TO '${MYSQL_USER}'@'%';
-
-ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
-
-FLUSH PRIVILEGES;
-EOF
-
-	mariadb-admin -u root -p"${MYSQL_ROOT_PASSWORD}" shutdown
+	echo "Database initialized"
 
 else
 	echo "Database already initialized"
 fi
 
+echo "Starting MariaDB"
 exec mariadbd --user=mysql
