@@ -17,9 +17,6 @@ if [ ! -d "/var/lib/mysql/mysql" ]; then
 
 	echo "Bootstrapping database, user and privileges"
 
-	# Bootstrap mode runs mariadbd synchronously in the foreground, reading
-	# SQL from stdin and exiting automatically at EOF. It never opens a
-	# network socket, so no background process (`&`) is needed here.
 	mariadbd --user=mysql --bootstrap --datadir=/var/lib/mysql <<-EOSQL
 		CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\`;
 		CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
